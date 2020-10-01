@@ -3,76 +3,81 @@ import http.client
 import re
 import sys
 
+# regex will match all urls starting with http or https
+# matches include the leading character to check if url is nested in brackets etc
+regex = r'.?http[s]?://[a-zA-Z0-9- _.~!*\'();:@&=+$,/?%#[\]]+.'
+nested = {'(':')', '[':']', '>':'<', '"':'"'}
+
 def main():
   if (len(sys.argv)==1):
     getHelp()
   else:
-    urls = getList(sys.argv[1])
-    processed = checkList(urls)
-    writeList(processed)
+    source = sys.argv[1]
+    urls = getList(source)
+    checked = checkList(urls)
+    printRtf(source, checked)
 
-# regex will match all urls starting with http or https
-# match includes the leading character to check if url is nested in brackets etc
-regex = r'.?http[s]?://[a-zA-Z0-9- _.~!*\'();:@&=+$,/?%#[\]]+.'
-nested = {
-  '(':')',
-  '[':']',
-  '>':'<',
-  '"':'"'
-}
-
-def getList(file):
+def getList(source):
   try:
-    with open(file) as src:
+    with open(source) as src:
       found = re.findall(regex, src.read())
     return found  
   except:
     print('error getting list')
 
-def checkNested(url):
-  if(url[0] in nested and nested.get(url[0]) == url[-1]):
-    return url[1:-1]
-  else:
-    return url
+# checks first and last character against nested dictionary
+def checkNested(char):
+  url = char
+  if(char[0] in nested and nested.get(char[0]) == char[-1]):
+    url = char[1:-1]
+  return url
 
-def checkStatus(url):
+# split the received string into protocol, domain, path
+# HTTPSConnection object takes the domain string 
+# return status code as a string
+def checkStatusCode(url):
   print(f"checking {url}")
   part = re.split('((?<=//)[^/]*)',url)
   try:
     conn = http.client.HTTPSConnection(part[1], timeout=5)
     conn.request("HEAD", part[2])
-    status = conn.getresponse().status  
-    print(status)
-    return str(status)
+    code = conn.getresponse().status  
+    print(code)
+    return str(code)
   except:
     print("something went wrong")
-    return "hmm"    
+    return "???"    
 
+# assigns colour from returned code string
 def checkList(list):
   checked = []
   for url in list:
     url = checkNested(url)
-    status = checkStatus(url)
+    code = checkStatusCode(url)
     color = r'\cf2' #grey
-    if status[0] == '2':
+    status = 'UNKN'
+    if code[0] == '2':
       color = r'\cf4' #green
-    elif status[0] == '4':
+      status = 'GOOD'
+    elif code[0] == '4':
       color = r'\cf3' #red
-    checked.append(f"{color} {url}")
+      status = 'WARN'
+    checked.append(f"{color} [{code}] [{status}] {url}")
   print("Done!") 
   return checked
 
-def writeList(urls):
-  format = """{\\rtf1\\ansi\\ansicpg1252\\cocoartf2513\n
-  \\cocoatextscaling0\\cocoaplatform0{\\fonttbl\\f0\\fswiss\\fcharset0 Helvetica;}\n
-  {\\colortbl;\\red255\\green255\\blue255;\\red112\\green112\\blue112;\\red251\\green0\\blue7;\\red35\\green255\\blue6;}\n
-  {\\*\\expandedcolortbl;;\\cssrgb\\c51471\\c51471\\c51471;\\cssrgb\\c100000\\c0\\c0;\\cssrgb\\c0\\c100000\\c0;}\n
-  \\margl1440\\margr1440\\vieww10800\\viewh8400\\viewkind0\n
-  \\pard\\tx566\\tx1133\\tx1700\\tx2267\\tx2834\\tx3401\\tx3968\\tx4535\\tx5102\\tx5669\\tx6236\\tx6803\\pardirnatural\\partightenfactor0\n
-  \\f0\\fs24 """
+# creates an rtf file and writes results
+def printRtf(source, results):
+  rtf = """{\\rtf1\\ansi\\ansicpg1252\\cocoartf2513\n
+    \\cocoatextscaling0\\cocoaplatform0{\\fonttbl\\f0\\fswiss\\fcharset0 Helvetica;}\n
+    {\\colortbl;\\red255\\green255\\blue255;\\red87\\green87\\blue87;\\red252\\green41\\blue19;\\red159\\green242\\blue92;}\n
+    {\\*\\expandedcolortbl;;\\cssrgb\\c41531\\c41531\\c41531;\\cssrgb\\c100000\\c25745\\c7993;\\cssrgb\\c67668\\c94348\\c43431;}\n
+    \\vieww12000\\viewh15840\\viewkind0\n
+    \\pard\\tx560\\tx1120\\tx1680\\tx2240\\tx2800\\tx3360\\tx3920\\tx4480\\tx5040\\tx5600\\tx6160\\tx6720\\pardirnatural\\partightenfactor0\n
+    \\f0\\fs24 \\cf0"""
   try:
     with open('output.rtf','w') as out:
-      out.write(format + '\\\n'.join(processed) + "}")
+      out.write(rtf + '***** HTTP status of ' + str(len(results)) + ' URLs from ' + source + ' *****\\\n\\\n' + '\\\n'.join(results) + '}')
     print('output.rtf is ready')  
   except:
     print('error writing list')
