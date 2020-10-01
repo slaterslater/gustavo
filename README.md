@@ -1,7 +1,7 @@
 ## Get-Url-Status (GUS) Text-As-Visual-Output (TAVO)
 GUS is a command line tool that searches a file for all HTTP urls then prints a colourized report of their status.
 ### Requirements
-1. Your system will need to have python 3 installed. You can find the latest release at <https://www.python.org/downloads/>
+1. Install Python 3.0 or greater. You can find the latest release at [www.python.org](https://www.python.org/downloads/)
 2. Download or clone this repo
 3. Open a terminal
 ### Usage
