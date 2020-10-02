@@ -1,4 +1,5 @@
 # release 0.1
+import argparse
 import http.client
 import re
 import sys
@@ -10,12 +11,9 @@ NESTED = {'(':')', '[':']', '>':'<', '"':'"'}
 
 # main function
 def tavo(source = ''):
-  if len(source) == 0:
-    get_help()                  # calls for help if no arg provided
-  else:
-    urls = get_list(source)     # creates list of all urls from provided source file
-    checked = check_list(urls)  # checks if each urls is nested and then checks http status
-    print_rtf(source, checked)  # prints results to output.rtf
+  urls = get_list(source)     # creates list of all urls from provided source file
+  checked = check_list(urls)  # checks if each urls is nested and then checks http status
+  print_rtf(source, checked)  # prints results to output.rtf
 
 # open file and return list of regex matches
 def get_list(source):
@@ -82,16 +80,10 @@ def print_rtf(source, results):
   except:
     print('error writing list')
 
-# print intructions on how to use tool
-def get_help():
-  try:
-    help = open('help.txt').read()
-    print(help)
-  except:
-    print("error printing help")  
+# Create parser that allows for arguments to be used with the tool (-f, --file, -v, --version, -h, --help)
+parser = argparse.ArgumentParser(description='Checks for dead urls in a file')
+parser.add_argument('-f', '--file', help='Check URLS in text file (e.g, gus.py -f index.html')
+parser.add_argument('-v', '--version', action="version", version='Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) version 0.1', help='Display version info')
+args = parser.parse_args()
 
-if __name__ == "__main__":
-  if (len(sys.argv)==1):
-    get_help()                  # calls for help if no arg provided
-  else:
-    tavo(str(sys.argv[1]))       # send command line arg to main function
+tavo(str(sys.argv[2]))       # send command line arg to main function
