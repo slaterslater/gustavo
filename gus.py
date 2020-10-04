@@ -1,5 +1,4 @@
 # release 0.1
-import argparse
 import http.client
 import re
 import sys
@@ -11,9 +10,12 @@ NESTED = {'(':')', '[':']', '>':'<', '"':'"'}
 
 # main function
 def tavo(source = ''):
-  urls = get_list(source)     # creates list of all urls from provided source file
-  checked = check_list(urls)  # checks if each urls is nested and then checks http status
-  print_rtf(source, checked)  # prints results to output.rtf
+  if len(source) == 0:
+    get_help()                  # calls for help if no arg provided
+  else:
+    urls = get_list(source)     # creates list of all urls from provided source file
+    checked = check_list(urls)  # checks if each urls is nested and then checks http status
+    print_rtf(source, checked)  # prints results to output.rtf
 
 # open file and return list of regex matches
 def get_list(source):
@@ -80,10 +82,25 @@ def print_rtf(source, results):
   except:
     print('error writing list')
 
-# Create parser that allows for arguments to be used with the tool (-f, --file, -v, --version, -h, --help)
-parser = argparse.ArgumentParser(description='Checks for dead urls in a file')
-parser.add_argument('-f', '--file', help='Check URLS in text file (e.g, gus.py -f index.html')
-parser.add_argument('-v', '--version', action="version", version='Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) version 0.1', help='Display version info')
-args = parser.parse_args()
+# print intructions on how to use tool
+def get_help():
+  try:
+    help = open('help.txt').read()
+    print(help)
+  except:
+    print("error printing help")
 
-tavo(str(sys.argv[2]))       # send command line arg to main function
+if __name__ == "__main__":
+  if len(sys.argv) == 1:
+    get_help()  # calls for help if no arg provided
+  elif len(sys.argv) == 2 and str(sys.argv[1])[:1] != "-":
+    tavo(str(sys.argv[1])) # send command line arg to main function
+  else:
+    if len(sys.argv) == 3 and (sys.argv[1] == "-f" or sys.argv[1] == "--file"):
+      tavo(str(sys.argv[2])) # send command line arg to main function
+    elif len(sys.argv) == 2 and sys.argv[1] == "-v" or sys.argv[1] == "--version":
+      print('Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) version 0.1') #print version info
+    elif len(sys.argv) == 2 and sys.argv[1] == "-h" or sys.argv[1] == "--help":
+        get_help()
+    else:
+      print('invalid argument error')

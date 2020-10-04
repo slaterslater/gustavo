@@ -1,0 +1,28 @@
+*************************************************************
+***** Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) *****
+                    --- version 0.1 ---
+
+GUS can be used from the command line or python shell
+The location to a source file must be supplied.
+
+To check files from the command line:
+>>> python gus.py example.txt
+or
+>>> python gus.py ~/another/file.html
+or 
+>>> python gus.py -f or --file example.txt
+or
+>>> python gus.py -f or --file ~/another/file.html
+
+To check version information:
+>>> python gus.py -v or --version
+
+To get help:
+>>> python gus.py -h or --help
+
+
+To check files from the python shell:
+>>> import gus
+>>> gus.tavo("your.filename.here")
+
+*************************************************************
