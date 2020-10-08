@@ -88,10 +88,19 @@ def get_help():
     help = open('help.txt').read()
     print(help)
   except:
-    print("error printing help")  
+    print("error printing help")
 
 if __name__ == "__main__":
-  if (len(sys.argv)==1):
-    get_help()                  # calls for help if no arg provided
+  if len(sys.argv) == 1:
+    get_help()  # calls for help if no arg provided
+  elif len(sys.argv) == 2 and str(sys.argv[1])[:1] != "-":
+    tavo(str(sys.argv[1])) # send command line arg to main function
   else:
-    tavo(str(sys.argv[1]))       # send command line arg to main function
+    if len(sys.argv) == 3 and (sys.argv[1] == "-f" or sys.argv[1] == "--file"):
+      tavo(str(sys.argv[2])) # send command line arg to main function
+    elif len(sys.argv) == 2 and (sys.argv[1] == "-v" or sys.argv[1] == "--version"):
+      print('Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) version 0.1') # print version info
+    elif len(sys.argv) == 2 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
+        get_help()
+    else:
+      print('invalid argument error') # print if user inputs wrong argument or if there are too many arguments

@@ -10,6 +10,9 @@ The location to a source file must be supplied.
 #### From the command line
 ```
 python gus.py example.html
+python gus.py -f example.html or python gus.py --file example.html to check a file
+python gus.py -v or python gus.py --version for version info
+python gus.py -h or python gus.py --help for help
 ```
 #### From the python shell
 ```
