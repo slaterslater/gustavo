@@ -7,18 +7,20 @@ GUS is a command line tool that searches a file for all HTTP urls then prints a 
 ### Usage
 GUS can be used from the command line or python shell.\
 The location to a source file must be supplied.
-#### From the command line
-```
-python gus.py example.html
-python gus.py -f example.html or python gus.py --file example.html to check a file
-python gus.py -v or python gus.py --version for version info
-python gus.py -h or python gus.py --help for help
-```
 #### From the python shell
 ```
 >>> import gus
->>> gus.tavo('example.html')
+>>> gus.tavo('FILENAME')
 ```
+#### From the command line
+```
+$ python gus.py [-f FILENAME]
+```
+Optional command line arguments | Description
+--|--
+-f FILENAME, --file FILENAME | location of source file to be checked
+-h, --help | show information on how to use the tool and exit
+-v, --version | show program's version number and exit
 ### Results
 GUS makes an HTTP connection for each URL in the source file.\
 The header is requested and the response code determines which label will be applied:
