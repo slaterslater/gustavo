@@ -1,23 +1,24 @@
 import argparse
-import http.client
 import re
+import requests
 import sys
 
-VERSION = '***** Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) ***** version 0.1'
+VERSION = '***** Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) ***** version 0.1.3'
 
 # regex will match all urls starting with http or https
-# matches include the leading character to check if url is nested in brackets etc
-REGEX = r'.?http[s]?://[a-zA-Z0-9- _.~!*\'();:@&=+$,/?%#[\]]+.'
-NESTED = {'(':')', '[':']', '>':'<', '"':'"'}
+REGEX = r'.?http[s]?://[a-zA-Z0-9- _.~!*\'();:@&=+$,/?%#[\]]+.' # includes leading char in case url is nested
+NESTED = {'(':')', '[':']', '>':'<', '"':'"'} 
 
 # main function
-def tavo(source = ''):
+# gets all urls from source, checks their status, determines output format
+def tavo(source = '', out = 'std'):
   if len(source) == 0:
-    get_help()                  # calls for help if no arg provided
+    get_help()                  
   else:
-    urls = get_list(source)     # creates list of all urls from provided source file
-    checked = check_list(urls)  # checks if each urls is nested and then checks http status
-    print_rtf(source, checked)  # prints results to output.rtf
+    urls = get_list(source)     
+    processed = process_list(urls, out)  
+    send_output = to_rtf if out == 'rtf' else to_console 
+    send_output(source, processed)
 
 # open file and return list of regex matches
 def get_list(source):
@@ -26,7 +27,8 @@ def get_list(source):
       found = re.findall(REGEX, src.read())
     return found  
   except:
-    print('error opening source file')
+    print(f'error opening source file {source}')
+    sys.exit(1)
 
 # checks first and last character against nested dictionary
 def check_nested(char):
@@ -35,41 +37,51 @@ def check_nested(char):
     url = char[1:-1]
   return url
 
-# split the received string into protocol, domain, path
-# make http connection, check head, return response code as string 
-def check_status_code(url):
-  print(f"checking {url}")
-  part = re.split('((?<=//)[^/]*)',url)
+# request header and return HTTP response code and description
+def get_status(url):
   try:
-    conn = http.client.HTTPSConnection(part[1], timeout=5)    # takes domain
-    conn.request("HEAD", part[2])                             # takes path
-    code = conn.getresponse().status  
-    print(code)
-    return str(code)
-  except:
-    print("something went wrong")
-    return "???"    
+    conn = requests.head(url, timeout=2.5)
+    code = conn.status_code
+    series = str(code)[0]
+    desc = 'UNKN'
+    if series == '2':
+      desc = 'GOOD'
+    elif series == '4':
+      desc = 'FAIL'
+    return {'code':code, 'desc':desc}
+  except:       # all exceptions default to status == 400
+    return {'code':400, 'desc':'FAIL'}
 
-# assigns colour from returned code string
-def check_list(list):
-  checked = []
-  for url in list:
-    url = check_nested(url)
-    code = check_status_code(url)
-    color = r'\cf2' #grey
-    status = 'UNKN'
-    if code[0] == '2':
-      color = r'\cf4' #green
-      status = 'GOOD'
-    elif code[0] == '4':
-      color = r'\cf3' #red
-      status = 'WARN'
-    checked.append(f"{color} [{code}] [{status}] {url}")
-  print("Done!") 
-  return checked
+# checks if string is nested; gets status code and decscription; applies desired format; returns processed list 
+def process_list(list, out):
+  processed = []
+  formatted = rtf_format if out == 'rtf' else std_format
+  for string in list:
+    print(f'\r Checking URL {list.index(string)} of {len(list)}', end='\r')
+    url = check_nested(string)
+    status = get_status(url)
+    processed.append(formatted(url, status['code'], status['desc']))
+  print(' ' * 50, end='\r')   # clears the console line
+  return processed
+
+def std_format(url, code, desc):
+  return f'[{desc}] [{code}] {url}'
+
+def rtf_format(url, code, desc):
+  color = r'\cf2' #grey 
+  status = 'UNKN'
+  if desc == 'GOOD':
+    color = r'\cf4' #green
+  elif desc == 'FAIL':
+    color = r'\cf3' #red
+  return f'{color} [{code}] [{status}] {url}'
+
+# standard output
+def to_console(source, results):
+  print('\n'.join(results))  
 
 # creates an rtf file and writes results
-def print_rtf(source, results):
+def to_rtf(source, results):
   RTF = """{\\rtf1\\ansi\\ansicpg1252\\cocoartf2513\n
     \\cocoatextscaling0\\cocoaplatform0{\\fonttbl\\f0\\fswiss\\fcharset0 Helvetica;}\n
     {\\colortbl;\\red255\\green255\\blue255;\\red87\\green87\\blue87;\\red252\\green41\\blue19;\\red159\\green242\\blue92;}\n
@@ -83,6 +95,7 @@ def print_rtf(source, results):
     print('output.rtf is ready')  
   except:
     print('error writing list')
+    sys.exit(1)
 
 # print intructions on how to use tool
 def get_help():
@@ -91,11 +104,14 @@ def get_help():
     print(help)
   except:
     print("error printing help")
+    sys.exit(1)
 
+# define all CLI args here
 def parse_args():
   parser = argparse.ArgumentParser()
   parser.add_argument('-v', '--version', action='version', version=VERSION)
-  parser.add_argument('-f', '--file', action='store', dest='filename', help='location of source file to be checked')
+  parser.add_argument('-f', '--file', action='store', dest='filename', help='location of source file', default='')
+  parser.add_argument('-r', '--rtf', action='store_const', dest='output_format', const='rtf', help='output as rich text file')
   return parser.parse_args()
 
 if __name__ == "__main__":
@@ -103,4 +119,4 @@ if __name__ == "__main__":
     get_help()  # calls for help if no arg provided
   else:
     args = parse_args()
-    tavo(args.filename)
+    tavo(args.filename, args.output_format)

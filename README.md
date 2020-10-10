@@ -1,5 +1,5 @@
 ## Get-Url-Status (GUS) Text-As-Visual-Output (TAVO)
-GUS is a command line tool that searches a file for all HTTP urls then prints a colourized report of their status.
+GUS is a command line tool that searches a file for all HTTP URLs and generates a report of their status.
 ### Requirements
 1. Install Python 3.0 or greater. You can find the latest release at [www.python.org](https://www.python.org/downloads/)
 2. Download or clone this repo
@@ -19,16 +19,17 @@ $ python gus.py [-f FILENAME]
 Optional command line arguments | Description
 --|--
 -f FILENAME, --file FILENAME | location of source file to be checked
+-r, --rtf | output as colourized rich text file
 -h, --help | show information on how to use the tool and exit
 -v, --version | show program's version number and exit
 ### Results
 GUS makes an HTTP connection for each URL in the source file.\
 The header is requested and the response code determines which label will be applied:
 * 2xx is [GOOD]
-* 4xx is [WARN]
+* 4xx is [FAIL]
 * All other codes will be marked as [UNKN]
 
-GUS generates **output.rft** as a list of results colourized as follows:
+GUS can generate **output.rft** as a list of results colourized as follows:
 * [GOOD] is green 
-* [WARN] is red
+* [FAIL] is red
 * [UNKN] is grey
