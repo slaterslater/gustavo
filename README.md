@@ -20,6 +20,7 @@ Optional command line arguments | Description
 --|--
 -f FILENAME, --file FILENAME | location of source file to be checked
 -r, --rtf | output as colourized rich text file
+-j, --json | output as JSON
 -h, --help | show information on how to use the tool and exit
 -v, --version | show program's version number and exit
 ### Results

@@ -19,6 +19,11 @@ To have report printed as output.rtf
  or  
   $ python gus.py --rtf [--file FILENAME]
 
+To have report generated as JSON
+  $ python gus.py -j [-f FILENAME]
+ or  
+  $ python gus.py --json [--file FILENAME]  
+
 To show version information
   $ python gus.py -v or --version
 

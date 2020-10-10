@@ -11,23 +11,26 @@ NESTED = {'(':')', '[':']', '>':'<', '"':'"'}
 
 # main function
 # gets all urls from source, checks their status, determines output format
-def tavo(source = '', out = 'std'):
+def tavo(source = '', output = 'std'):
   if len(source) == 0:
     get_help()                  
   else:
-    urls = get_list(source)     
-    processed = process_list(urls, out)  
-    send_output = to_rtf if out == 'rtf' else to_console 
-    send_output(source, processed)
+    global SOURCE, OUTPUT
+    SOURCE = source
+    OUTPUT  = output
+    urls = get_list()     
+    processed = process_list(urls)  
+    send_output = to_rtf if OUTPUT  == 'rtf' else to_console 
+    send_output(processed)
 
 # open file and return list of regex matches
-def get_list(source):
+def get_list():
   try:
-    with open(source) as src:
+    with open(SOURCE) as src:
       found = re.findall(REGEX, src.read())
     return found  
   except:
-    print(f'error opening source file {source}')
+    print(f'error opening source file {SOURCE}')
     sys.exit(1)
 
 # checks first and last character against nested dictionary
@@ -53,9 +56,9 @@ def get_status(url):
     return {'code':400, 'desc':'FAIL'}
 
 # checks if string is nested; gets status code and decscription; applies desired format; returns processed list 
-def process_list(list, out):
+def process_list(list):
   processed = []
-  formatted = rtf_format if out == 'rtf' else std_format
+  formatted = rtf_format if OUTPUT  == 'rtf' else json_format if OUTPUT  == 'json' else std_format
   for string in list:
     print(f'\r Checking URL {list.index(string)} of {len(list)}', end='\r')
     url = check_nested(string)
@@ -67,6 +70,9 @@ def process_list(list, out):
 def std_format(url, code, desc):
   return f'[{desc}] [{code}] {url}'
 
+def json_format(url, code, desc):
+  return '{"url": \'' + url + '\', "status": ' + str(code) + '}'
+
 def rtf_format(url, code, desc):
   color = r'\cf2' #grey 
   status = 'UNKN'
@@ -77,11 +83,14 @@ def rtf_format(url, code, desc):
   return f'{color} [{code}] [{status}] {url}'
 
 # standard output
-def to_console(source, results):
-  print('\n'.join(results))  
+def to_console(results):
+  if OUTPUT  == 'json':
+    print(results)
+  else:  
+    print('\n'.join(results))  
 
 # creates an rtf file and writes results
-def to_rtf(source, results):
+def to_rtf(results):
   RTF = """{\\rtf1\\ansi\\ansicpg1252\\cocoartf2513\n
     \\cocoatextscaling0\\cocoaplatform0{\\fonttbl\\f0\\fswiss\\fcharset0 Helvetica;}\n
     {\\colortbl;\\red255\\green255\\blue255;\\red87\\green87\\blue87;\\red252\\green41\\blue19;\\red159\\green242\\blue92;}\n
@@ -90,8 +99,8 @@ def to_rtf(source, results):
     \\pard\\tx560\\tx1120\\tx1680\\tx2240\\tx2800\\tx3360\\tx3920\\tx4480\\tx5040\\tx5600\\tx6160\\tx6720\\pardirnatural\\partightenfactor0\n
     \\f0\\fs24 \\cf0"""
   try:
-    with open('output.rtf','w') as out:
-      out.write(RTF + '***** HTTP status of ' + str(len(results)) + ' URLs from ' + source + ' *****\\\n\\\n' + '\\\n'.join(results) + '}')
+    with open('output.rtf','w') as rtf_file:
+      rtf_file.write(RTF + '***** HTTP status of ' + str(len(results)) + ' URLs from ' + SOURCE + ' *****\\\n\\\n' + '\\\n'.join(results) + '}')
     print('output.rtf is ready')  
   except:
     print('error writing list')
@@ -110,8 +119,9 @@ def get_help():
 def parse_args():
   parser = argparse.ArgumentParser()
   parser.add_argument('-v', '--version', action='version', version=VERSION)
-  parser.add_argument('-f', '--file', action='store', dest='filename', help='location of source file', default='')
+  parser.add_argument('-f', '--file', action='store', dest='filename', default='', help='location of source file')
   parser.add_argument('-r', '--rtf', action='store_const', dest='output_format', const='rtf', help='output as rich text file')
+  parser.add_argument('-j', '--json', action='store_const', dest='output_format', const='json', help='output as json')
   return parser.parse_args()
 
 if __name__ == "__main__":
