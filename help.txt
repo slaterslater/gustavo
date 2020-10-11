@@ -11,12 +11,27 @@ To check a file from the python shell
 
 To check a file from the command line
   $ python gus.py [-f FILENAME]
- or
+  or
   $ python gus.py [--file FILENAME]
+
+To print only [GOOD] results
+  $ python gus.py -g [-f FILENAME]
+  or  
+  $ python gus.py --good [--file FILENAME]
+
+To print only [FAIL] results
+  $ python gus.py -b [-f FILENAME]
+  or  
+  $ python gus.py --bad [--file FILENAME]
+  
+To print all results
+  $ python gus.py -a [-f FILENAME]
+  or  
+  $ python gus.py --all [--file FILENAME]
 
 To have report printed as output.rtf
   $ python gus.py -r [-f FILENAME]
- or  
+  or  
   $ python gus.py --rtf [--file FILENAME]
 
 To have report generated as JSON
@@ -25,9 +40,13 @@ To have report generated as JSON
   $ python gus.py --json [--file FILENAME]  
 
 To show version information
-  $ python gus.py -v or --version
+  $ python gus.py -v 
+  or 
+  $ python gus.py --version
 
 To show information on how to use the tool
-  $ python gus.py -h or --help
+  $ python gus.py -h 
+  or
+  $ python gus.py --help
 
 *************************************************************
