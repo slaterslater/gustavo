@@ -11,12 +11,13 @@ NESTED = {'(':')', '[':']', '>':'<', '"':'"'}
 
 # main function
 # gets all urls from source, checks their status, determines output format
-def tavo(source = '', output = 'std'):
+def tavo(source = '', wanted = ['GOOD','FAIL', 'UNKN'], output = 'std'):
   if len(source) == 0:
     get_help()                  
   else:
-    global SOURCE, OUTPUT
+    global SOURCE, WANTED, OUTPUT
     SOURCE = source
+    WANTED = wanted
     OUTPUT  = output
     urls = get_list()     
     processed = process_list(urls)  
@@ -63,7 +64,8 @@ def process_list(list):
     print(f'\r Checking URL {list.index(string)} of {len(list)}', end='\r')
     url = check_nested(string)
     status = get_status(url)
-    processed.append(formatted(url, status['code'], status['desc']))
+    if status['desc'] in WANTED:
+      processed.append(formatted(url, status['code'], status['desc']))
   print(' ' * 50, end='\r')   # clears the console line
   return processed
 
@@ -122,6 +124,9 @@ def parse_args():
   parser.add_argument('-f', '--file', action='store', dest='filename', default='', help='location of source file')
   parser.add_argument('-r', '--rtf', action='store_const', dest='output_format', const='rtf', help='output as rich text file')
   parser.add_argument('-j', '--json', action='store_const', dest='output_format', const='json', help='output as json')
+  parser.add_argument('-a', '--all', action='store_const', dest='wanted', const=['GOOD','FAIL','UNKN'], default=['GOOD','FAIL','UNKN'], help='output includes all results')
+  parser.add_argument('-g', '--good', action='store_const', dest='wanted', const=['GOOD'], help='output includes only [GOOD] results')
+  parser.add_argument('-b', '--bad', action='store_const', dest='wanted', const=['FAIL'], help='output includes only [FAIL] results')
   return parser.parse_args()
 
 if __name__ == "__main__":
@@ -129,4 +134,4 @@ if __name__ == "__main__":
     get_help()  # calls for help if no arg provided
   else:
     args = parse_args()
-    tavo(args.filename, args.output_format)
+    tavo(args.filename, args.wanted, args.output_format)

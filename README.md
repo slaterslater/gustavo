@@ -19,6 +19,9 @@ $ python gus.py [-f FILENAME]
 Optional command line arguments | Description
 --|--
 -f FILENAME, --file FILENAME | location of source file to be checked
+-a, --all | output includes all results (this is default)
+-g, --good | output includes only [GOOD] results
+-b, --bad | output includes only [FAIL] results
 -r, --rtf | output as colourized rich text file
 -j, --json | output as JSON
 -h, --help | show information on how to use the tool and exit
