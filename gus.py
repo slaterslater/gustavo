@@ -20,7 +20,6 @@ def tavo(source = '', wanted = ['GOOD','FAIL', 'UNKN'], output = 'std', ignore =
     WANTED = wanted
     OUTPUT  = output
     IGNORE = ignore
-    urls = {}
     ignore_urls = {}
     urls = get_list()     
     if ignore:
