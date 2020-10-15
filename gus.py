@@ -3,7 +3,7 @@ import re
 import requests
 import sys
 
-VERSION = '***** Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) ***** version 0.1.3'
+VERSION = '***** Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) ***** version 0.1.4'
 
 # regex will match all urls starting with http or https
 REGEX = r'.?http[s]?://[a-zA-Z0-9- _.~!*\'();:@&=+$,/?%#[\]]+.' # includes leading char in case url is nested
@@ -11,16 +11,21 @@ NESTED = {'(':')', '[':']', '>':'<', '"':'"'}
 
 # main function
 # gets all urls from source, checks their status, determines output format
-def tavo(source = '', wanted = ['GOOD','FAIL', 'UNKN'], output = 'std'):
+def tavo(source = '', wanted = ['GOOD','FAIL', 'UNKN'], output = 'std', ignore = ''):
   if len(source) == 0:
     get_help()                  
   else:
-    global SOURCE, WANTED, OUTPUT
+    global SOURCE, WANTED, OUTPUT, IGNORE
     SOURCE = source
     WANTED = wanted
     OUTPUT  = output
+    IGNORE = ignore
+    urls = {}
+    ignore_urls = {}
     urls = get_list()     
-    processed = process_list(urls)  
+    if ignore:
+      ignore_urls = get_ignore_list()
+    processed = process_list(urls, ignore_urls)  
     send_output = to_rtf if OUTPUT  == 'rtf' else to_console 
     send_output(processed)
 
@@ -32,6 +37,20 @@ def get_list():
     return found  
   except:
     print(f'error opening source file {SOURCE}')
+    sys.exit(1)
+
+# open ignore file and return list of URLs to ignore
+def get_ignore_list():
+  try:
+    with open(IGNORE) as src:
+      ignore = []
+      for line in src:
+        line = line.rstrip().strip('\n').strip('\t')
+        if not line.startswith("#") and line != "":
+          ignore.append(line)
+    return ignore  
+  except:
+    print(f'error opening ignore file {IGNORE}')
     sys.exit(1)
 
 # checks first and last character against nested dictionary
@@ -57,10 +76,12 @@ def get_status(url):
     return {'code':400, 'desc':'FAIL'}
 
 # checks if string is nested; gets status code and decscription; applies desired format; returns processed list 
-def process_list(list):
+def process_list(list, ignore_urls):
   processed = []
   formatted = rtf_format if OUTPUT  == 'rtf' else json_format if OUTPUT  == 'json' else std_format
   for string in list:
+    if IGNORE and string in ignore_urls:
+      continue
     print(f'\r Checking URL {list.index(string)} of {len(list)}', end='\r')
     url = check_nested(string)
     status = get_status(url)
@@ -127,6 +148,7 @@ def parse_args():
   parser.add_argument('-a', '--all', action='store_const', dest='wanted', const=['GOOD','FAIL','UNKN'], default=['GOOD','FAIL','UNKN'], help='output includes all results')
   parser.add_argument('-g', '--good', action='store_const', dest='wanted', const=['GOOD'], help='output includes only [GOOD] results')
   parser.add_argument('-b', '--bad', action='store_const', dest='wanted', const=['FAIL'], help='output includes only [FAIL] results')
+  parser.add_argument('-i', '--ignore', action='store', dest='ignorefile', help='location of ignore file')
   return parser.parse_args()
 
 if __name__ == "__main__":
@@ -134,4 +156,4 @@ if __name__ == "__main__":
     get_help()  # calls for help if no arg provided
   else:
     args = parse_args()
-    tavo(args.filename, args.wanted, args.output_format)
+    tavo(args.filename, args.wanted, args.output_format, args.ignorefile)

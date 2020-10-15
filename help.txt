@@ -36,9 +36,14 @@ To have report printed as output.rtf
 
 To have report generated as JSON
   $ python gus.py -j [-f FILENAME]
- or  
-  $ python gus.py --json [--file FILENAME]  
+  or  
+  $ python gus.py --json [--file FILENAME]
 
+To ignore specific urls
+  $ python gus.py [-i FILENAME] [-f FILENAME]
+  or
+  $ python gus.py [--ignore FILENAME] [--file FILENAME] 
+ 
 To show version information
   $ python gus.py -v 
   or 
