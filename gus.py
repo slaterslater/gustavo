@@ -18,13 +18,11 @@ def tavo(source = '', wanted = ['GOOD','FAIL', 'UNKN'], output = 'std', ignore =
     global SOURCE, WANTED, OUTPUT, IGNORE
     SOURCE = source
     WANTED = wanted
-    OUTPUT  = output
+    OUTPUT = output
     IGNORE = ignore
-    ignore_urls = {}
+
     urls = get_list()     
-    if ignore:
-      ignore_urls = get_ignore_list()
-    processed = process_list(urls, ignore_urls)  
+    processed = process_list(urls)  
     send_output = to_rtf if OUTPUT  == 'rtf' else to_console 
     send_output(processed)
 
@@ -33,23 +31,32 @@ def get_list():
   try:
     with open(SOURCE) as src:
       found = re.findall(REGEX, src.read())
-    return found  
+    return strip_ignored(found)  
   except:
     print(f'error opening source file {SOURCE}')
     sys.exit(1)
 
+def strip_ignored(source_list):
+  ignore_list = get_ignore_list()
+  print('*** SOURCE LIST ***\n' + '\n'.join(source_list))
+  print('*** IGNORE LIST ***\n' + '\n'.join(ignore_list))
+  # if the beginning of any string in source_list matches any string in ignore_list, pop it out
+  print('*** NEW LIST ***\n' + '\n'.join(source_list))
+  # if new list looks good, return it instead of an empty list
+  return []
+
 # open ignore file and return list of URLs to ignore
 def get_ignore_list():
   try:
-    with open(IGNORE) as src:
-      ignore = []
-      for line in src:
-        line = line.rstrip().strip('\n').strip('\t')
-        if not line.startswith("#") and line != "":
-          ignore.append(line)
-    return ignore  
+    if IGNORE:
+      with open(IGNORE) as src:
+        text = src.read()
+        found = re.findall('^https?://.*[^\s/]', text, flags=re.MULTILINE)
+        comment = re.search('^#.*', text, flags=re.MULTILINE)
+      return found if comment or found else sys.exit(1)
+    return []   
   except:
-    print(f'error opening ignore file {IGNORE}')
+    print(f'error with ignore file: {IGNORE}')
     sys.exit(1)
 
 # checks first and last character against nested dictionary
@@ -75,12 +82,10 @@ def get_status(url):
     return {'code':400, 'desc':'FAIL'}
 
 # checks if string is nested; gets status code and decscription; applies desired format; returns processed list 
-def process_list(list, ignore_urls):
+def process_list(list):
   processed = []
   formatted = rtf_format if OUTPUT  == 'rtf' else json_format if OUTPUT  == 'json' else std_format
   for string in list:
-    if IGNORE and string in ignore_urls:
-      continue
     print(f'\r Checking URL {list.index(string)} of {len(list)}', end='\r')
     url = check_nested(string)
     status = get_status(url)
