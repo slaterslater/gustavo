@@ -3,7 +3,7 @@ import re
 import requests
 import sys
 
-VERSION = '***** Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) ***** version 0.1.3'
+VERSION = '***** Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) ***** version 0.1.4'
 
 # regex will match all urls starting with http or https
 REGEX = r'.?http[s]?://[a-zA-Z0-9- _.~!*\'();:@&=+$,/?%#[\]]+.' # includes leading char in case url is nested
@@ -11,14 +11,16 @@ NESTED = {'(':')', '[':']', '>':'<', '"':'"'}
 
 # main function
 # gets all urls from source, checks their status, determines output format
-def tavo(source = '', wanted = ['GOOD','FAIL', 'UNKN'], output = 'std'):
+def tavo(source = '', wanted = ['GOOD','FAIL', 'UNKN'], output = 'std', ignore = ''):
   if len(source) == 0:
     get_help()                  
   else:
-    global SOURCE, WANTED, OUTPUT
+    global SOURCE, WANTED, OUTPUT, IGNORE
     SOURCE = source
     WANTED = wanted
-    OUTPUT  = output
+    OUTPUT = output
+    IGNORE = ignore
+
     urls = get_list()     
     processed = process_list(urls)  
     send_output = to_rtf if OUTPUT  == 'rtf' else to_console 
@@ -29,9 +31,34 @@ def get_list():
   try:
     with open(SOURCE) as src:
       found = re.findall(REGEX, src.read())
-    return found  
+    return strip_ignored(found)  
   except:
     print(f'error opening source file {SOURCE}')
+    sys.exit(1)
+ 
+# check if url is nested; add url to list if domain not on ignore list; return list
+def strip_ignored(source_list):
+  ignore_list = get_ignore_list()
+  clean_list = []
+  for string in source_list:
+    url = check_nested(string)
+    domain = re.split('(?<!/|:)/', url)[0]
+    if domain not in ignore_list:
+      clean_list.append(url)
+  return clean_list
+
+# open ignore file and return list of domains to ignore
+def get_ignore_list():
+  try:
+    if IGNORE:
+      with open(IGNORE) as src:
+        text = src.read()
+        found = re.findall('^https?://.*[^\s/]', text, flags=re.MULTILINE)
+        comment = re.search('^#.*', text, flags=re.MULTILINE)
+      return found if comment or found else sys.exit(1)
+    return []   
+  except:
+    print(f'error with ignore file: {IGNORE}')
     sys.exit(1)
 
 # checks first and last character against nested dictionary
@@ -60,9 +87,8 @@ def get_status(url):
 def process_list(list):
   processed = []
   formatted = rtf_format if OUTPUT  == 'rtf' else json_format if OUTPUT  == 'json' else std_format
-  for string in list:
-    print(f'\r Checking URL {list.index(string)} of {len(list)}', end='\r')
-    url = check_nested(string)
+  for url in list:
+    print(f'\r Checking URL {list.index(url)} of {len(list)}', end='\r')
     status = get_status(url)
     if status['desc'] in WANTED:
       processed.append(formatted(url, status['code'], status['desc']))
@@ -127,6 +153,7 @@ def parse_args():
   parser.add_argument('-a', '--all', action='store_const', dest='wanted', const=['GOOD','FAIL','UNKN'], default=['GOOD','FAIL','UNKN'], help='output includes all results')
   parser.add_argument('-g', '--good', action='store_const', dest='wanted', const=['GOOD'], help='output includes only [GOOD] results')
   parser.add_argument('-b', '--bad', action='store_const', dest='wanted', const=['FAIL'], help='output includes only [FAIL] results')
+  parser.add_argument('-i', '--ignore', action='store', dest='ignorefile', help='location of ignore file')
   return parser.parse_args()
 
 if __name__ == "__main__":
@@ -134,4 +161,4 @@ if __name__ == "__main__":
     get_help()  # calls for help if no arg provided
   else:
     args = parse_args()
-    tavo(args.filename, args.wanted, args.output_format)
+    tavo(args.filename, args.wanted, args.output_format, args.ignorefile)

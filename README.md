@@ -26,6 +26,7 @@ Optional command line arguments | Description
 -j, --json | output as JSON
 -h, --help | show information on how to use the tool and exit
 -v, --version | show program's version number and exit
+-i FILENAME, --ignore FILENAME | ignore the URLs found in the file when checking
 ### Results
 GUS makes an HTTP connection for each URL in the source file.\
 The header is requested and the response code determines which label will be applied:
