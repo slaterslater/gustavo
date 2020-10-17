@@ -35,28 +35,19 @@ def get_list():
   except:
     print(f'error opening source file {SOURCE}')
     sys.exit(1)
-
+ 
+# check if url is nested; add url to list if domain not on ignore list; return list
 def strip_ignored(source_list):
   ignore_list = get_ignore_list()
-  new_source_list = []
-  print('*** SOURCE LIST ***\n' + '\n'.join(source_list))
-  print('*** IGNORE LIST ***\n' + '\n'.join(ignore_list))
-  # create a new source list with ignore urls removed
-  for url in source_list:
-    pathArray = url.split('/')
-    url = pathArray[0] + "//" + pathArray[2]
-    if url in ignore_list[0:len(url)]:
-      continue
-    new_source_list.append(url)
-  # if new list looks good, return it instead of an empty list
-  if len(new_source_list) > 0:
-    print('*** NEW LIST ***\n' + '\n'.join(new_source_list))
-    return new_source_list 
-  else:
-    print(f'\nall URLs ignored in source file {SOURCE}')
-    return []
+  clean_list = []
+  for string in source_list:
+    url = check_nested(string)
+    domain = re.split('(?<!/|:)/', url)[0]
+    if domain not in ignore_list:
+      clean_list.append(url)
+  return clean_list
 
-# open ignore file and return list of URLs to ignore
+# open ignore file and return list of domains to ignore
 def get_ignore_list():
   try:
     if IGNORE:
@@ -96,9 +87,8 @@ def get_status(url):
 def process_list(list):
   processed = []
   formatted = rtf_format if OUTPUT  == 'rtf' else json_format if OUTPUT  == 'json' else std_format
-  for string in list:
-    print(f'\r Checking URL {list.index(string)} of {len(list)}', end='\r')
-    url = check_nested(string)
+  for url in list:
+    print(f'\r Checking URL {list.index(url)} of {len(list)}', end='\r')
     status = get_status(url)
     if status['desc'] in WANTED:
       processed.append(formatted(url, status['code'], status['desc']))
