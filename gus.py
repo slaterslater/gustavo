@@ -38,12 +38,23 @@ def get_list():
 
 def strip_ignored(source_list):
   ignore_list = get_ignore_list()
+  new_source_list = []
   print('*** SOURCE LIST ***\n' + '\n'.join(source_list))
   print('*** IGNORE LIST ***\n' + '\n'.join(ignore_list))
-  # if the beginning of any string in source_list matches any string in ignore_list, pop it out
-  print('*** NEW LIST ***\n' + '\n'.join(source_list))
+  # create a new source list with ignore urls removed
+  for url in source_list:
+    pathArray = url.split('/')
+    url = pathArray[0] + "//" + pathArray[2]
+    if url in ignore_list[0:len(url)]:
+      continue
+    new_source_list.append(url)
   # if new list looks good, return it instead of an empty list
-  return []
+  if len(new_source_list) > 0:
+    print('*** NEW LIST ***\n' + '\n'.join(new_source_list))
+    return new_source_list 
+  else:
+    print(f'\nall URLs ignored in source file {SOURCE}')
+    return []
 
 # open ignore file and return list of URLs to ignore
 def get_ignore_list():
