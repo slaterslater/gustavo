@@ -10,9 +10,14 @@ from progress.spinner import Spinner
 # open file and return list of regex matches
 def get_list(sourcefile, ignorefile):
   try:
-    with open(sourcefile) as src:
-      found = re.findall(THE.ALL_URLS_REGEX, src.read())
-    return strip_ignored(found, ignorefile)  
+    if sourcefile == 'TELESCOPE':
+      posts = requests.get('http://localhost:3000/posts')
+      urls = re.findall('/posts/[a-zA-Z0-9]{10}', posts.text)
+      return ['http://localhost:3000' + url for url in urls]
+    else:  
+      with open(sourcefile) as src:
+        found = re.findall(THE.ALL_URLS_REGEX, src.read())
+      return strip_ignored(found, ignorefile)  
   except:
     print(f'error opening source file {sourcefile}')
     sys.exit(1)

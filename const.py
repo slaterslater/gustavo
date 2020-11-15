@@ -1,4 +1,4 @@
-VERSION = '***** Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) ***** version 0.1.5'
+VERSION = '***** Get-Url-Status (GUS) Text-As-Visual-Output (TAVO) ***** version 0.1.6'
 
 # all urls starting with http:// or https:// including leading char in case url is nested
 ALL_URLS_REGEX = r'.?http[s]?://[a-zA-Z0-9- _.~!*\'();:@&=+$,/?%#[\]]+.' 

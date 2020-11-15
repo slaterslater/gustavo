@@ -5,20 +5,13 @@ GUS is a command line tool that searches a file for all HTTP URLs and generates 
 2. Download or clone this repo
 3. Open a terminal
 ### Usage
-GUS can be used from the command line or python shell.\
-The location to a source file must be supplied.
-#### From the python shell
-```
->>> import gus
->>> gus.tavo('FILENAME')
-```
-#### From the command line
 ```
 $ python gus.py [-f FILENAME]
 ```
 Optional command line arguments | Description
 --|--
 -f FILENAME, --file FILENAME | location of source file to be checked
+-t, --telescope | check recent posts indexed by Telescope
 -a, --all | output includes all results (this is default)
 -g, --good | output includes only [GOOD] results
 -b, --bad | output includes only [FAIL] results
