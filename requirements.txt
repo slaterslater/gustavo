@@ -1,0 +1,8 @@
+###### Requirements for Gustavo ######
+python
+requests
+progress
+black
+pylint
+pytest
+pre-commit
