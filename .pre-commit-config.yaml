@@ -1,12 +1,23 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 20.8b1
+  - repo: local
     hooks:
-      - id: black
-        language_version: python3
-  - repo: https://github.com/PyCQA/pylint
-    rev: pylint-2.6.0
-    hooks:
-      - id: pylint
+    -   id: black 
+        name: black
+        entry: black
+        language: system
+        types: [python] 
+    -   id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
         args:
         - --errors-only
+    -   id: pytest
+        name: pytest
+        entry: pytest
+        pass_filenames: false
+        language: system
+        types: [python]
+        args:
+        - --quiet

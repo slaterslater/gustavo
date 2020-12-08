@@ -1,9 +1,9 @@
+import sys
 import concurrent.futures
-import const as THE
-import out
 import re
 import requests
-import sys
+from src import const as THE
+from src import out
 
 from progress.spinner import Spinner
 

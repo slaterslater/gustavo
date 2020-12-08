@@ -3,4 +3,9 @@ python
 requests
 progress
 black
+<<<<<<< HEAD
+=======
+pylint
+pytest
+>>>>>>> testing
 pre-commit

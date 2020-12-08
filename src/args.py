@@ -1,5 +1,5 @@
 import argparse
-import const as THE
+from src import const as THE
 
 
 def get_parsed():

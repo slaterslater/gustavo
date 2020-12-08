@@ -1,5 +1,5 @@
-import const as THE
 import sys
+from src import const as THE
 
 
 def std_format(status):

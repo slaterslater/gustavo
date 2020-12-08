@@ -1,7 +1,5 @@
 import sys
-import args
-import out
-import urls
+from src import args, out, urls
 
 
 class Gus:
@@ -20,7 +18,6 @@ class Gus:
     def tavo(self):
         send_results = out.to_rtf if self.output == "rtf" else out.to_console
         send_results(self.urlist, self.output)
-
 
 
 if __name__ == "__main__":
