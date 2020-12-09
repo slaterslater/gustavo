@@ -30,9 +30,7 @@ jobs:
         black
     - name: Lint with pylint
       run: |
-        touch __init_.py
-        pylint .
-        rm __init__.py
+        pylint *.py
         pylint ./src
     - name: Test with pytest
       run: |
