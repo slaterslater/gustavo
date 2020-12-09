@@ -5,5 +5,5 @@ Install the following:
 * [progress](https://pypi.org/project/progress/)
 * [black](https://pypi.org/project/black/)
 * [pre-commit](https://pre-commit.com/#install)
-+ [pylint](https://www.pylint.org/#install)
-
+* [pylint](https://www.pylint.org/#install)
+* [pytest](https://docs.pytest.org/en/latest/getting-started.html#install-pytest)
