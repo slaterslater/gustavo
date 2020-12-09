@@ -21,3 +21,4 @@ repos:
         types: [python]
         args:
         - --quiet
+        - --disable-warnings
