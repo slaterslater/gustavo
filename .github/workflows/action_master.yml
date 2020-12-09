@@ -31,7 +31,11 @@ jobs:
     - name: Lint with pylint
       run: |
         pylint *.py
+        args:
+        - --exit-zero
         pylint ./src
+        args:
+        - --exit-zero
     - name: Test with pytest
       run: |
         pytest
