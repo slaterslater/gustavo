@@ -30,13 +30,8 @@ jobs:
         black .
     - name: Lint with pylint
       run: |
-        pylint *.py
-        args:
-        - --exit-zero
-        pylint ./src
-        args:
-        - --exit-zero
+        pylint *.py --exit-zero
+        pylint ./src --exit-zero
     - name: Test with pytest
       run: |
         pytest
-        
