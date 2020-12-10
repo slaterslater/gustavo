@@ -1,5 +1,5 @@
 import sys
-from gus import const as THE
+from . import const as THE
 
 
 def std_format(status):

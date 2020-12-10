@@ -1,4 +1,8 @@
-from gus import __main__, args, out, urls
+import sys
+
+sys.path.append("gus")
+
+from gus import __main__, args, const, out, urls
 
 STATUS = {"url": "test", "code": 400, "desc": "FAIL"}
 
