@@ -1,5 +1,5 @@
 import sys
-from src import const as THE
+from gus import const as THE
 
 
 def std_format(status):
@@ -21,10 +21,7 @@ def rtf_format(status):
 
 # standard output
 def to_console(results, output):
-    if output == "json":
-        print(results)
-    else:
-        print("\n".join(results))
+    print(results) if output == "json" else print("\n".join(results))
 
 
 # creates an rtf file and writes results

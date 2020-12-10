@@ -1,5 +1,4 @@
-import gus
-from src import args, out, urls
+from gus import __main__, args, out, urls
 
 STATUS = {"url": "test", "code": 400, "desc": "FAIL"}
 
