@@ -33,7 +33,7 @@ jobs:
     - name: Lint with pylint
       run: |
         pylint *.py --exit-zero
-        pylint ./src --exit-zero
+        pylint ./gus --exit-zero
     - name: Test with pytest
       run: |
         pytest

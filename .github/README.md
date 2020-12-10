@@ -2,7 +2,7 @@
 GUS is a command line tool that searches a file for all HTTP URLs and generates a report of their status.
 ### Usage
 ```
-$ python gus.py [-f FILENAME]
+$ python gus [-f FILENAME]
 ```
 Optional command line arguments | Description
 --|--

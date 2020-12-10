@@ -1,5 +1,5 @@
 import sys
-from src import args, out, urls
+from . import args, out, urls
 
 
 class Gus:
