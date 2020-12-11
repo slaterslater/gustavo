@@ -1,8 +1,8 @@
-import sys
+import sys, os
 
-sys.path.append("gus")
+sys.path.append(os.getcwd() + "/gus")
 
-from gus import __main__, args, const, out, urls
+import __main__, args, const, out, urls
 
 STATUS = {"url": "test", "code": 400, "desc": "FAIL"}
 

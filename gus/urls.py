@@ -2,7 +2,7 @@ import sys
 import concurrent.futures
 import re
 import requests
-from . import const as THE, out
+import const as THE, out
 
 from progress.spinner import Spinner
 
